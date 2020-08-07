@@ -55,7 +55,7 @@ class RaiffeisenPlugin(Plugin):
 
     def get_parser(self, filename):
         """Get a parser instance."""
-        encoding = self.settings.get('charset', 'cp1252')
+        encoding = self.settings.get('charset', 'utf-8-sig')
         f = open(filename, 'r', encoding=encoding)
         parser = RaiffeisenCsvParser(f)
         parser.statement.account_id = self.settings.get('account', 'default')
