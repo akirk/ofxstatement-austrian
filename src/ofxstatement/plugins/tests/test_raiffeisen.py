@@ -92,7 +92,7 @@ class TestRaiffeisenMeinElbaCsvParser(unittest.TestCase):
     def setUp(self):
         csvfile = os.path.join(
             os.path.dirname(__file__), 'samples', 'raiffeisen-meinelba.csv')
-        with open(csvfile, 'r', encoding='utf8') as fin:
+        with open(csvfile, 'r', encoding='utf8-sig') as fin:
             self.statement = RaiffeisenCsvParser(fin).parse()
 
     def test_statement_properties(self):
