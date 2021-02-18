@@ -43,7 +43,7 @@ class RaiffeisenCsvParser(CsvStatementParser):
         line[3] = fix_amount_string(line[3])
         line[1] = clean_multiple_whitespaces(line[1])
 
-        memo = re.split( r'((?:(?:BIC|IBAN) )?(?:Auftraggeber|Zahlungsempfänger|Empfänger)|Verwendungszweck|Zahlungsreferenz|Auftraggeberreferenz|Empfänger-Kennung|Mandat): ', line[1] )
+        memo = re.split( r'((?:(?:BIC|IBAN) )?(?:Auftraggeber|Zahlungsempfänger|Empfänger)|Verwendungszweck|Zahlungsreferenz|Auftraggeberreferenz|Empfänger-Kennung|Mandat|Kundendaten): ', line[1] )
         parsed_memo = {
             'Empfänger': re.sub(r'ONLINE BANKING VOM \d{2}.\d{2} UM \d{2}:\d{2}', '', re.sub(r'KONFORM \d+UEB\d+', '', memo.pop(0).replace( 'INTERNET-Überweisung', '')))
         }
@@ -56,14 +56,14 @@ class RaiffeisenCsvParser(CsvStatementParser):
         # Create statement and fixup missing parts
         stmtline = super(RaiffeisenCsvParser, self).parse_record(line)
         stmtline.trntype = 'DEBIT' if stmtline.amount < 0 else 'CREDIT'
-        stmtline.id = generate_transaction_id(stmtline)
         stmtline.payee = parsed_memo.get('Auftraggeber', parsed_memo.get('Zahlungsempfänger', parsed_memo.get('Empfänger')))
         stmtline.bank_account_to = BankAccount(
             parsed_memo.get('BIC Auftraggeber', parsed_memo.get('BIC Zahlungsempfänger', parsed_memo.get('BIC Empfänger'))),
             parsed_memo.get('IBAN Auftraggeber', parsed_memo.get('IBAN Zahlungsempfänger', parsed_memo.get('IBAN Empfänger')))
         )
         stmtline.check_no=parsed_memo.get('Auftraggeberreferenz')
-        stmtline.memo=parsed_memo.get('Verwendungszweck',parsed_memo.get('Zahlungsreferenz',stmtline.memo))
+        stmtline.memo=parsed_memo.get('Verwendungszweck',parsed_memo.get('Zahlungsreferenz',parsed_memo.get('Kundendaten',stmtline.memo)))
+        stmtline.id = generate_transaction_id(stmtline)
         return stmtline
 
 
